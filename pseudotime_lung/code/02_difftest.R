@@ -10,6 +10,7 @@ source('/home-4/whou10@jhu.edu/scratch/Wenpin/trajectory_variability/function/01
 pdir <- '/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/plot'
 rdir <- '/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/result'
 ## read in data
+tf <- readRDS('/home-4/whou10@jhu.edu/scratch/Wenpin/resource/cistrome_allTFs.rds')
 dfs_meta <- readRDS(here('pseudotime_lung', 'data', 'diffusion.coordinate.meta.rds'))
 # imp <- readRDS('/home-4/zji4@jhu.edu/scratch/TCR/saver/combine/tumornormal.rds') ## very large (182 GB)
 # int <- intersect(colnames(imp), dfs_meta$barcode)
@@ -38,9 +39,32 @@ res1 <- difftest(expr1, ord1)
 res2 <- difftest(expr2, ord2)
 saveRDS(res1, paste0(rdir, '/path_znf683_res.rds'))
 saveRDS(res2, paste0(ridr, '/path_il7r_res.rds'))
-write.csv(res1, '/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/result/path_znf683_res.csv')
-write.csv(res2, '/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/result/path_il7r_res.csv')
 
+res1 <- read.csv('/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/result/path_znf683_res.csv', as.is = T, row.names = 1)
+res1$is_TF <- ifelse(rownames(res1) %in% tf[,1], 'Yes', 'No')
+res1$has_target_gene <- sapply(rownames(res1), function(i) {
+  if (res1[i,3] == 'No'){
+    'NA'
+  } else if (res1[i,3] == 'Yes' & !is.na(tf[tf[,1]==i, 2])){
+    'TRUE'
+  } else {
+    'NA'
+  }
+})
+write.csv(res1, '/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/result/path_znf683_res.csv')
+
+res2 <- read.csv('/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/result/path_il7r_res.csv', as.is = T, row.names = 1)
+res2$is_TF <- ifelse(rownames(res2) %in% tf[,1], 'Yes', 'No')
+res2$has_target_gene <- sapply(rownames(res2), function(i) {
+  if (res2[i,3] == 'No'){
+    'NA'
+  } else if (res2[i,3] == 'Yes' & !is.na(tf[tf[,1]==i, 2])){
+    'TRUE'
+  } else {
+    'NA'
+  }
+})
+write.csv(res2, '/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/result/path_il7r_res.csv')
 
 ## plot ----------
 png('/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/plot/path_znf683_differential_genes_hm.png', width = 600, height = 800)
@@ -129,4 +153,5 @@ res.go <- res.go[res.go$FDR<0.05, ]
 res.go <- res.go[order(res.go$FDR, -res.go$FC), ]
 print(res.go[1:min(20, nrow(res.go)),c(2,7,8)])
 write.csv(res.go, paste0(rdir, '/path_il7r_GO_cluster2_decreasing.csv'))
+
 
