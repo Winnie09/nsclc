@@ -107,7 +107,23 @@ print(ggplot(data.frame(x = c(dm[ord,1], dm[!rownames(dm) %in% ord,1]), y = c(dm
         theme_classic() + xlab('DM1') + ylab('DM2'))
 dev.off()
 
-
+## plot marker genes on both paths
+ord = c(ord1, ord2)
+gs <- c('PRDM1', 'ZNF683', 'ZNF684') ## 'BLIMP1', 'HOBIT' not in rownames
+expr.tmp <- cbind(expr1[gs,], expr2[gs,])
+expr.tmp <- expr.tmp[,ord]
+for (g in gs){
+  pdf(paste0(pdir, '/', g, '_expression_along_pseudotime.pdf'), width = 3.3, height = 2.2)
+  v = expr.tmp[g, ]
+  v[v > quantile(v, 0.95)] <- quantile(v, 0.95)
+  v[v < quantile(v, 0.05)] <- quantile(v, 0.05)
+  print(ggplot(data.frame(x = c(dm[ord,1], dm[!rownames(dm) %in% ord,1]), y = c(dm[ord,2], dm[!rownames(dm) %in% ord, 2]), expression = v)) + 
+          geom_point(aes(x = x, y = y, col = expression), size = 0.5) + 
+          scale_color_gradientn(colors = c(colorRampPalette(rev(brewer.pal(11, 'RdYlBu')))(ncol(expr.tmp)), 'grey')) + 
+          theme_classic() + xlab('DM1') + ylab('DM2') +
+          ggtitle(g))
+  dev.off()
+}
 
 ## GO analysis
 res1 <- readRDS(paste0(rdir, '/path_znf683_res.rds'))
