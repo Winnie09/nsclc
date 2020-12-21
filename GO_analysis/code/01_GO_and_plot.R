@@ -41,7 +41,7 @@ for (f in af){
   print(res.go[1:min(20, nrow(res.go)),c(2,7,8)])
   write.csv(res.go, paste0(rdir, 'GO_nonFilterGene_', strsplit(f, '\\.')[[1]][2], '_side_in_', f))
   
-  pdf(paste0(pdir, 'GO_nonFilterGene_', strsplit(f, '\\.')[[1]][1], '_side_in_', sub('.csv','.pdf',f)), width = 10, height = 7)
+  pdf(paste0(pdir, 'GO_nonFilterGene_', strsplit(f, '\\.')[[1]][2], '_side_in_', sub('.csv','.pdf',f)), width = 10, height = 7)
   print(ggplot(data = res.go[1:20,]) +
     geom_bar(aes(x = Term, y = FC, fill = Term), stat="identity", width=0.5) +
     theme_classic() + 
