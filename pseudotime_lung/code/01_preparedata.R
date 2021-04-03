@@ -32,29 +32,43 @@ ggplot(data = meta) +
   theme_classic() 
 dev.off()
 
+clu <- as.numeric(meta[,'integrated_snn_res.0.3'])
+names(clu) <- rownames(meta)
+pdf(paste0(pdir, 'dm_tissueCelltype.pdf'), width = 4.5, height = 3)
+ggplot(data = data.frame(DC1 = meta[,'DC1'], DC2 = meta[,'DC2'], ctcluster = as.factor(clu))) + 
+  geom_point(aes(x = DC1, y = DC2, color = ctcluster), size = 0.5) +
+  theme_classic() 
+dev.off()
+
+
 ## ---------------------
 ## construct MST 
 ## ---------------------
-mc <- exprmclust(t(dm[,1:2]),reduce = T)
-
+# Tmemory(3)->Teffector(1)-> Teffector(3); the other is Tmemory(3)->T(memory2)
+#  6->1->3, and 6->2
+# mc <- exprmclust(t(dm[, 1:2]),reduce = F, cluster = clu)
+mc <- exprmclust(t(dm[, 1:2]),reduce = F)
 pdf(paste0(pdir, 'MST_cluster.pdf'), width = 4, height = 3)
 plot(mc$MSTtree)
 dev.off()
 pdf(paste0(pdir, 'dm_cluster.pdf'), width = 4, height = 3)
-ggplot(data=data.frame(d1=dm[names(mc$clusterid),1],d2=dm[names(mc$clusterid),2],cluster=as.character(mc$clusterid)),aes(x=d1,y=d2,col=cluster)) + geom_point(size=0.5) + theme_classic()+scale_color_brewer(palette = 'Set1') + xlab('DM1') + ylab('DM2')
+ggplot(data=data.frame(d1=dm[names(mc$clusterid),1],d2=dm[names(mc$clusterid),2],cluster=as.character(mc$clusterid)),aes(x=d1,y=d2,col=cluster)) + geom_point(size=0.5) + theme_classic()+scale_color_brewer(palette = 'Set1') + xlab('DM1') + ylab('DM2') +scale_color_brewer(palette = 'Set1')
 dev.off()
 
 ## ---------------------
 ## construct pseudotime 
 ## ---------------------
-ord <- TSCANorder(mc,orderonly = T,listbranch = T)
-names(ord)
-p1 <- rev(ord[[1]])
-p2 <- rev(ord[[2]])
+ord <- TSCANorder(mc,orderonly = T,listbranch = T, startcluster = 6)
+# names(ord)
+#  $ backbone 6,8,2,1: chr [1:3503] 
+#  $ branch: 6,4,9,5 : chr [1:433] 
+#  $ branch: 6,4,3,7 :
+p1 <- ord[[1]] ## right
+p2 <- ord[[3]]  ## lower-left
+p3 <- ord[[2]] ## upper-left
 
 pdf(paste0(pdir, 'dm_pseudotime_path1.pdf'), width = 4, height = 3)
 mycolor = c(colorRampPalette(rev(brewer.pal(11, 'RdYlBu')))(length(p1)), 'grey')
-# mycolor = c(rep(mycolor[1:30], each = 100), mycolor[31:length(mycolor)])
 print(ggplot(data.frame(x = c(dm[p1,1], dm[!rownames(dm) %in% p1,1]), y = c(dm[p1,2], dm[!rownames(dm) %in% p1, 2]), time = c(seq(1, length(p1)), rep(NA, sum(!rownames(dm) %in% p1))))) + 
         geom_point(aes(x = x, y = y, col = time), size = 0.5) + 
         scale_color_gradientn(colors = mycolor) + 
@@ -63,8 +77,15 @@ dev.off()
 
 pdf(paste0(pdir, 'dm_pseudotime_path2.pdf'), width = 4, height = 3)
 mycolor = c(colorRampPalette(rev(brewer.pal(11, 'RdYlBu')))(length(p2)), 'grey')
-# mycolor = c(rep(mycolor[1:30], each = 100), mycolor[31:length(mycolor)])
 print(ggplot(data.frame(x = c(dm[p2,1], dm[!rownames(dm) %in% p2,1]), y = c(dm[p2,2], dm[!rownames(dm) %in% p2, 2]), time = c(seq(1, length(p2)), rep(NA, sum(!rownames(dm) %in% p2))))) + 
+        geom_point(aes(x = x, y = y, col = time), size = 0.5) + 
+        scale_color_gradientn(colors = mycolor) + 
+        theme_classic() + xlab('DM1') + ylab('DM2'))
+dev.off()
+
+pdf(paste0(pdir, 'dm_pseudotime_path3.pdf'), width = 4, height = 3)
+mycolor = c(colorRampPalette(rev(brewer.pal(11, 'RdYlBu')))(length(p3)), 'grey')
+print(ggplot(data.frame(x = c(dm[p3,1], dm[!rownames(dm) %in% p3,1]), y = c(dm[p3,2], dm[!rownames(dm) %in% p3, 2]), time = c(seq(1, length(p3)), rep(NA, sum(!rownames(dm) %in% p3))))) + 
         geom_point(aes(x = x, y = y, col = time), size = 0.5) + 
         scale_color_gradientn(colors = mycolor) + 
         theme_classic() + xlab('DM1') + ylab('DM2'))
@@ -81,7 +102,6 @@ saveRDS(saver[, p1], paste0(rdir, 'path1_logsaver.rds'))
 saveRDS(cellanno[p1,], paste0(rdir, 'path1_cellanno.rds'))
 saveRDS(design, paste0(rdir, 'path1_design.rds'))
 
-
 pt <- seq(1, length(p2))
 names(pt) <- p2
 saveRDS(pt, paste0(rdir, 'path2_pseudotime.rds'))
@@ -90,4 +110,10 @@ saveRDS(cellanno[p2,], paste0(rdir, 'path2_cellanno.rds'))
 saveRDS(design, paste0(rdir, 'path2_design.rds'))
 
 
+pt <- seq(1, length(p3))
+names(pt) <- p3
+saveRDS(pt, paste0(rdir, 'path3_pseudotime.rds'))
+saveRDS(saver[, p3], paste0(rdir, 'path3_logsaver.rds'))
+saveRDS(cellanno[p3,], paste0(rdir, 'path3_cellanno.rds'))
+saveRDS(design, paste0(rdir, 'path3_design.rds'))
 
