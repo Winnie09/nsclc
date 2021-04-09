@@ -1,11 +1,13 @@
 rm(list = ls())
 library(here)
-setwd(here())
-source('/home-4/whou10@jhu.edu/scratch/Wenpin/trajectory_variability/function/01_function.R')
+# setwd(here())
+# source('/home-4/whou10@jhu.edu/scratch/Wenpin/trajectory_variability/function/01_function.R')
+setwd('/Users/wenpinhou/Dropbox/pardoll/nsclc/')
+source('/Users/wenpinhou/Dropbox/trajectory_variability/function/01_function.R')
 for (path in c('path1', 'path2', 'path3')){
  #path = 'path2'
-  rdir <- paste0('/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/result/', path, '/')
-  pdir <- paste0('/home-4/whou10@jhu.edu/scratch/Wenpin/pardoll/nsclc/pseudotime_lung/plot/', path,'/')
+  rdir <- paste0('pseudotime_lung/result/', path, '/')
+  pdir <- paste0('pseudotime_lung/plot/', path,'/')
   dir.create(pdir, showWarnings = F, recursive = T)
   
   # ---------------------------- #
@@ -75,9 +77,14 @@ for (path in c('path1', 'path2', 'path3')){
   
   gene <- c('GZMA', 'CCL5', 'NKG7', 'GZMK', 'IL6R', 'SELL', 'CD74', 'CCR7', 'IFNGR2', 'TCF7', 'HLA-DPA1', 'IL2RA', 'EOMES', 'IFNG', 'GZMB')
   gene <- gene[gene %in% rownames(Res$populationFit)]
-  png(paste0(pdir, 'example_genes.png'),width = 3000,height = 2000, res = 300)
-  plotGene(Res, gene, plot.point = T)
+  png(paste0(pdir, 'example_genes.png'),width = 2000,height = 1800, res = 300)
+  plotGene(Res, gene, plot.point = T, point.size =0.2)
+  dev.off()
+  
+  png(paste0(pdir, 'example_genes_pullplot.png'),width = 2000,height = 1800, res = 300)
+  plotGeneCellAndPopulation(Res, gene = gene)
   dev.off()
 }
   
+
 
