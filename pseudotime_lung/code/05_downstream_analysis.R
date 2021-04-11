@@ -26,7 +26,8 @@ for (path in c('path1', 'path2', 'path3')){
   ## clustering
   ## -----------
   Res$cluster <- clusterGene(Res, gene = diffgene, type = 'time', k=3)
-  
+  saveRDS(Res, paste0(pdir, 'testtime_res_with_clu.rds'))  
+ 
   ## --------------
   ## save diff gene
   ## --------------
