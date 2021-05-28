@@ -77,6 +77,9 @@ for (path in c('path1', 'path2', 'path3')){
   print(plotFitHm(Res, showRowName = T, subsampleCell = F, cellWidthTotal = 300, cellHeightTotal = length(Res$cluster) * 10))
   dev.off()
   
+  colnames(Res$populationFit) <- names(Res$pseudotime)
+  
+  
   # gene <- c('GZMA', 'CCL5', 'NKG7', 'GZMK', 'IL6R', 'SELL', 'CD74', 'CCR7', 'IFNGR2', 'TCF7', 'HLA-DPA1', 'IL2RA', 'EOMES', 'IFNG', 'GZMB')
   Res = readRDS(paste0(pdir, 'testtime_res_with_clu.rds'))
   fdr <- Res$statistics[,1]
@@ -90,12 +93,17 @@ for (path in c('path1', 'path2', 'path3')){
   })
   rownames(Res$populationFit) <- paste0(rownames(Res$populationFit), '; FDR', fdr[rownames(Res$populationFit)])
   rownames(Res$expr) <- paste0(rownames(Res$expr), '; FDR', fdr[rownames(Res$expr)])
-  gene <- c('GZMA','NKG7', 'GZMK','HLA-DRA','PRF1','IFNG','CCR6','CCL5','ITGB2','CRTAM','RUNX3','EOMES','SELL', 'TCF7','IL7R')
+  gene <- c('HLA-DRA','GZMA','NKG7', 'GZMK','PRF1','IFNG','CCL4','CCL5','ITGB2','CRTAM','EOMES','RUNX3','SELL','IL7R','CCR6', 'TCF7')
   str(gene)
   # 
   gene <- paste0(gene, '; FDR', fdr[gene])
   gene <- gene[gene %in% rownames(Res$populationFit)]
   png(paste0(pdir, 'example_genes_pullplot.png'),width = 2000,height = 1800, res = 300)
+  plotGeneCellAndPopulation(Res, gene = gene, dot.quantile = 0.99)
+  dev.off()
+  
+  
+  pdf(paste0(pdir, 'example_genes_pullplot.pdf'),width = 7.5,height = 7) ###########
   plotGeneCellAndPopulation(Res, gene = gene, dot.quantile = 0.99)
   dev.off()
   
@@ -121,9 +129,13 @@ for (path in c('path1', 'path2', 'path3')){
     png(paste0(pdir, 'fitHm_with_genenames_30_and_selected.png'),width = 6000,height = 3000,res = 300)
     plotFitHm(Res, showRowName = T, subsampleCell = F, cellWidthTotal = 300, cellHeightTotal = length(Res$cluster) * 10)
     dev.off()
+    
+    pdf(paste0(pdir, 'fitHm_with_genenames_30_and_selected.pdf'),width = 18,height = 7)
+    plotFitHm(Res, showRowName = T, subsampleCell = F, cellWidthTotal = 250, cellHeightTotal = length(Res$cluster) * 10)
+    dev.off()
+    
   }
 }
   
-
 
 
