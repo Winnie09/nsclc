@@ -90,7 +90,7 @@ for (path in c('path1', 'path2', 'path3')){
   })
   rownames(Res$populationFit) <- paste0(rownames(Res$populationFit), '; FDR', fdr[rownames(Res$populationFit)])
   rownames(Res$expr) <- paste0(rownames(Res$expr), '; FDR', fdr[rownames(Res$expr)])
-  gene <- c('GZMA','NKG7', 'GZMK','HLA-DRA','PRF1','IFNG','CCR6','CCL5','ITGB2','CRTAM','RUNX3','EOMES','SELL', 'TCF7','IL7R')
+  gene <- c('HLA-DRA','GZMA','NKG7', 'GZMK','PRF1','IFNG','CCL4','CCL5','ITGB2','CRTAM','EOMES','RUNX3','SELL','IL7R','CCR6', 'TCF7')
   str(gene)
   # 
   gene <- paste0(gene, '; FDR', fdr[gene])
@@ -124,6 +124,4 @@ for (path in c('path1', 'path2', 'path3')){
   }
 }
   
-
-
 
